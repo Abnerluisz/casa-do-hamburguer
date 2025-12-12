@@ -1,12 +1,19 @@
 import Input from "../components/Input";
-import { useState } from "react";
-import { Link } from "react-router";
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router";
 import Button from "../components/Button";
+import { UserContext } from "../context/UserContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("Abner@gmail.com");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
   const [error, setError] = useState("");
+
+  const { setUser } = useContext(UserContext);
+
+  console.log(document.cookie);
+
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     try {
@@ -26,29 +33,35 @@ const Login = () => {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
 
       switch (response.status) {
         case 200:
           setError("");
+          // ler as informações da resposta
+          const data = await response.json();
+          navigate("/");
+          setUser(data);
           break;
         case 404:
           setError("Usuário não encontrado.");
-          break;
+          return;
         case 400:
           setError("Usuário e senha são obrigatórios.");
-          break;
+          return;
+        case 401:
+          setError("Usuário não encontrado.");
+          return;
         case 500:
           setError("Tente novamente mais tarde.");
+          return;
       }
 
       if (!response) {
         setError("Tente novamente mais tarde.");
+        return;
       }
-
-      // ler as informações da resposta
-      // const data = await response.json();
-      // console.log(data);
     } catch (error) {
       setError("Tente novamente mais tarde.");
       console.error(error);

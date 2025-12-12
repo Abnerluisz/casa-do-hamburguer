@@ -21,19 +21,3 @@ export const connection = async () => {
     throw error;
   }
 };
-
-const createuser = async () => {
-  try {
-    await prisma.user.create({
-      data: {
-        name: "Becher",
-        email: "becher@asd.com",
-        password: "4321",
-        cep: "11111-001",
-      },
-    });
-  } catch (error) {
-    throw error;
-  }
-};
-// createuser();
